@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext } from "react";
+import React, { useState, useEffect, useReducer, useContext, useRef } from "react";
 
 import Card from "../UI/Card/Card";
 import Input from "../UI/Input/Input";
@@ -65,6 +65,10 @@ const Login = (props) => {
   const { isValid: passwordIsValid } = passwordState;
   const { isValid: collegeNameIsValid } = collegeNameState;
 
+  const emailInputRef = useRef();
+  const passwordInputRef = useRef();
+  const collegeNameInputRef = useRef();
+
   useEffect(() => {
     const identifier = setTimeout(() => {
       setFormIsValid(emailIsValid && passwordIsValid && collegeNameIsValid);
@@ -77,32 +81,14 @@ const Login = (props) => {
 
   const emailChangeHandler = (event) => {
     dispatchEmail({ type: "USER_INPUT", val: event.target.value });
-
-    // setFormIsValid(
-    //   event.target.value.includes("@") &&
-    //     passwordState.isValid &&
-    //     collegeNameState.isValid
-    // );
   };
 
   const collegeNameChangeHandler = (event) => {
     dispatchCollegeName({ type: "USER_INPUT", val: event.target.value });
-
-    // setFormIsValid(
-    //   emailState.isValid &&
-    //     passwordState.isValid &&
-    //     event.target.value.trim().length !== 0
-    // );
   };
 
   const passwordChangeHandler = (event) => {
     dispatchPassword({ type: "USER_INPUT", val: event.target.value });
-
-    // setFormIsValid(
-    //   emailState.isValid &&
-    //     event.target.value.trim().length > 6 &&
-    //     collegeNameState.isValid
-    // );
   };
 
   const validateEmailHandler = () => {
@@ -119,11 +105,18 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
+    if(formIsValid){
     authCtx.onLogIn(
       emailState.value,
       collegeNameState.value,
       passwordState.value
     );
+  } else if(!emailIsValid){
+    emailInputRef.current.focus();
+  } else if(!collegeNameIsValid){
+    collegeNameInputRef.current.focus();
+  }
+    passwordInputRef.current.focus();
   };
 
   return (
@@ -137,6 +130,7 @@ const Login = (props) => {
           value={emailState.value}
           onChange={emailChangeHandler}
           onBlur={validateEmailHandler}
+          ref={emailInputRef}
         />
 
         <Input
@@ -147,6 +141,7 @@ const Login = (props) => {
           value={collegeNameState.value}
           onChange={collegeNameChangeHandler}
           onBlur={validateCollegeNameHandler}
+          ref={collegeNameInputRef}
         />
 
         <Input
@@ -157,10 +152,11 @@ const Login = (props) => {
           value={passwordState.value}
           onChange={passwordChangeHandler}
           onBlur={validatePasswordHandler}
+          ref={passwordInputRef}
         />
         
         <div className={classes.actions}>
-          <Button type="submit" className={classes.btn} disabled={!formIsValid}>
+          <Button type="submit" className={classes.btn}>
             Login
           </Button>
         </div>
